@@ -235,9 +235,11 @@ class SelectNearest<D> implements ChartBehavior<D> {
   }
 
   List<SeriesDatum<D>> _expandToDomain(DatumDetails<D> nearestDetails) {
+    final i = nearestDetails.index;
+
     // Make sure that the "nearest" datum is at the top of the list.
     final data = <SeriesDatum<D>>[
-      SeriesDatum(nearestDetails.series!, nearestDetails.datum)
+      SeriesDatum(nearestDetails.series!, nearestDetails.datum, index: i)
     ];
     final nearestDomain = nearestDetails.domain;
 
@@ -248,43 +250,41 @@ class SelectNearest<D> implements ChartBehavior<D> {
       final testBounds =
           domainLowerBoundFn != null && domainUpperBoundFn != null;
 
-      for (var i = 0; i < series.data.length; i++) {
-        final Object? datum = series.data[i];
-        final domain = domainFn(i);
+      final Object? datum = i != null ? series.data[i] : null;
+      final domain = domainFn(i);
 
-        // Don't re-add the nearest details.
-        if (nearestDetails.series == series && nearestDetails.datum == datum) {
-          continue;
+      // Don't re-add the nearest details.
+      if (nearestDetails.series == series && nearestDetails.datum == datum) {
+        continue;
+      }
+
+      if (domain == nearestDomain) {
+        data.add(SeriesDatum(series, datum, index: i));
+      } else if (testBounds) {
+        final domainLowerBound = domainLowerBoundFn!(i);
+        final domainUpperBound = domainUpperBoundFn!(i);
+
+        var addDatum = false;
+        if (domainLowerBound != null && domainUpperBound != null) {
+          if (domain is int) {
+            addDatum = (domainLowerBound as int) <= (nearestDomain as int) &&
+                (nearestDomain as int) <= (domainUpperBound as int);
+          } else if (domain is double) {
+            addDatum =
+                (domainLowerBound as double) <= (nearestDomain as double) &&
+                    (nearestDomain as double) <= (domainUpperBound as double);
+          } else if (domain is DateTime) {
+            addDatum = domainLowerBound == nearestDomain ||
+                domainUpperBound == nearestDomain ||
+                ((domainLowerBound as DateTime)
+                        .isBefore(nearestDomain as DateTime) &&
+                    (nearestDomain as DateTime)
+                        .isBefore(domainUpperBound as DateTime));
+          }
         }
 
-        if (domain == nearestDomain) {
-          data.add(SeriesDatum(series, datum));
-        } else if (testBounds) {
-          final domainLowerBound = domainLowerBoundFn!(i);
-          final domainUpperBound = domainUpperBoundFn!(i);
-
-          var addDatum = false;
-          if (domainLowerBound != null && domainUpperBound != null) {
-            if (domain is int) {
-              addDatum = (domainLowerBound as int) <= (nearestDomain as int) &&
-                  (nearestDomain as int) <= (domainUpperBound as int);
-            } else if (domain is double) {
-              addDatum =
-                  (domainLowerBound as double) <= (nearestDomain as double) &&
-                      (nearestDomain as double) <= (domainUpperBound as double);
-            } else if (domain is DateTime) {
-              addDatum = domainLowerBound == nearestDomain ||
-                  domainUpperBound == nearestDomain ||
-                  ((domainLowerBound as DateTime)
-                          .isBefore(nearestDomain as DateTime) &&
-                      (nearestDomain as DateTime)
-                          .isBefore(domainUpperBound as DateTime));
-            }
-          }
-
-          if (addDatum) {
-            data.add(SeriesDatum(series, datum));
-          }
+        if (addDatum) {
+          data.add(SeriesDatum(series, datum, index: i));
         }
       }
     }

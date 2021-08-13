@@ -24,7 +24,7 @@ class SeriesDatum<D> {
   /// considered unsafe. Always uses [index] getter instead.
   int? _index;
 
-  SeriesDatum(this.series, this.datum);
+  SeriesDatum(this.series, this.datum, {int? index}) : _index = index;
 
   /// Returns null if-and-only if [datum] is null.
   int? get index {
@@ -35,10 +35,14 @@ class SeriesDatum<D> {
 
   @override
   bool operator ==(Object other) =>
-      other is SeriesDatum && other.series == series && other.datum == datum;
+      other is SeriesDatum &&
+      other.series == series &&
+      other.datum == datum &&
+      other._index == _index;
 
   @override
-  int get hashCode => series.hashCode * 31 + datum.hashCode;
+  int get hashCode =>
+      (series.hashCode * 31 + datum.hashCode) * 31 + _index.hashCode;
 }
 
 /// Represents a series datum based on series id and datum index.

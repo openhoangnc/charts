@@ -1135,6 +1135,7 @@ class LineRenderer<D> extends BaseCartesianRenderer<D> {
             chartPosition: NullablePoint(nearestPoint.x, nearestPoint.y),
             datum: nearestPoint.datum,
             domain: nearestPoint.domain,
+            index: nearestPoint.index,
             series: nearestPoint.series,
             domainDistance: nearestDomainDistance,
             measureDistance: nearestMeasureDistance,
