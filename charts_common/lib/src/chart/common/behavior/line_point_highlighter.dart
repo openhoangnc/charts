@@ -41,6 +41,9 @@ import '../selection_model/selection_model.dart'
     show SelectionModel, SelectionModelType;
 import 'chart_behavior.dart' show ChartBehavior;
 
+typedef TooltipPainter = void Function(
+    ChartCanvas canvas, Rectangle<num> bounds);
+
 /// Chart behavior that monitors the specified [SelectionModel] and renders a
 /// dot for selected data.
 ///
@@ -96,6 +99,8 @@ class LinePointHighlighter<D> implements ChartBehavior<D> {
   /// Renderer used to draw the highlighted points.
   final SymbolRenderer symbolRenderer;
 
+  final TooltipPainter? tooltipPainter;
+
   late BaseChart<D> _chart;
 
   late _LinePointLayoutView<D> _view;
@@ -124,7 +129,8 @@ class LinePointHighlighter<D> implements ChartBehavior<D> {
       LinePointHighlighterFollowLineType? showVerticalFollowLine,
       List<int>? dashPattern,
       bool? drawFollowLinesAcrossChart,
-      SymbolRenderer? symbolRenderer})
+      SymbolRenderer? symbolRenderer,
+      this.tooltipPainter})
       : selectionModelType = selectionModelType ?? SelectionModelType.info,
         defaultRadiusPx = defaultRadiusPx ?? 4.0,
         radiusPaddingPx = radiusPaddingPx ?? 2.0,
@@ -150,7 +156,8 @@ class LinePointHighlighter<D> implements ChartBehavior<D> {
         showVerticalFollowLine: showVerticalFollowLine,
         dashPattern: dashPattern,
         drawFollowLinesAcrossChart: drawFollowLinesAcrossChart,
-        symbolRenderer: symbolRenderer);
+        symbolRenderer: symbolRenderer,
+        tooltipPainter: tooltipPainter);
 
     if (chart is CartesianChart) {
       // Only vertical rendering is supported by this behavior.
@@ -298,6 +305,8 @@ class _LinePointLayoutView<D> extends LayoutView {
 
   final SymbolRenderer symbolRenderer;
 
+  final TooltipPainter? tooltipPainter;
+
   @override
   GraphicsFactory? graphicsFactory;
 
@@ -315,6 +324,7 @@ class _LinePointLayoutView<D> extends LayoutView {
     required this.symbolRenderer,
     required this.dashPattern,
     required this.drawFollowLinesAcrossChart,
+    this.tooltipPainter,
   }) : layoutConfig = LayoutViewConfig(
             paintOrder: LayoutViewPaintOrder.linePointHighlighter,
             position: LayoutPosition.DrawArea,
@@ -513,6 +523,10 @@ class _LinePointLayoutView<D> extends LayoutView {
           fillColor: pointElement.fillColor,
           strokeColor: pointElement.color,
           strokeWidthPx: pointElement.strokeWidthPx);
+
+      if (pointElement == points.last) {
+        tooltipPainter?.call(canvas, bounds);
+      }
     }
   }
 

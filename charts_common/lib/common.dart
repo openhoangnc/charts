@@ -144,8 +144,6 @@ export 'src/chart/common/behavior/chart_behavior.dart'
         OutsideJustification;
 export 'src/chart/common/behavior/chart_title/chart_title.dart'
     show ChartTitle, ChartTitleDirection;
-export 'src/chart/common/behavior/domain_highlighter.dart'
-    show DomainHighlighter;
 export 'src/chart/common/behavior/domain_outliner.dart' show DomainOutliner;
 export 'src/chart/common/behavior/initial_selection.dart' show InitialSelection;
 export 'src/chart/common/behavior/legend/datum_legend.dart' show DatumLegend;
@@ -157,7 +155,10 @@ export 'src/chart/common/behavior/legend/legend_entry_generator.dart'
     show LegendEntryGenerator, LegendDefaultMeasure;
 export 'src/chart/common/behavior/legend/series_legend.dart' show SeriesLegend;
 export 'src/chart/common/behavior/line_point_highlighter.dart'
-    show LinePointHighlighter, LinePointHighlighterFollowLineType;
+    show
+        LinePointHighlighter,
+        LinePointHighlighterFollowLineType,
+        TooltipPainter;
 export 'src/chart/common/behavior/range_annotation.dart'
     show
         AnnotationLabelAnchor,
