@@ -13,6 +13,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:charts_common/common.dart' as common
     show
         BehaviorPosition,
@@ -37,6 +39,9 @@ import 'legend.dart' show TappableLegend;
 import 'legend_content_builder.dart'
     show LegendContentBuilder, TabularLegendContentBuilder;
 import 'legend_layout.dart' show TabularLegendLayout;
+
+typedef LegendSeriesFunction = void Function(
+    String seriesId, common.SeriesLegend legend);
 
 /// Series legend behavior for charts.
 @immutable
@@ -90,6 +95,8 @@ class SeriesLegend<D> extends ChartBehavior<D> {
   static const defaultCellPadding = const EdgeInsets.all(8.0);
 
   final List<String>? defaultHiddenSeries;
+
+  final LegendSeriesFunction? onLegendStateChanged;
 
   /// Create a new tabular layout legend.
   ///
@@ -145,6 +152,7 @@ class SeriesLegend<D> extends ChartBehavior<D> {
     common.MeasureFormatter? measureFormatter,
     common.MeasureFormatter? secondaryMeasureFormatter,
     common.TextStyleSpec? entryTextStyle,
+    LegendSeriesFunction? onLegendStateChanged,
   }) {
     // Set defaults if empty.
     position ??= defaultBehaviorPosition;
@@ -176,7 +184,8 @@ class SeriesLegend<D> extends ChartBehavior<D> {
             legendDefaultMeasure ?? common.LegendDefaultMeasure.none,
         measureFormatter: measureFormatter,
         secondaryMeasureFormatter: secondaryMeasureFormatter,
-        entryTextStyle: entryTextStyle);
+        entryTextStyle: entryTextStyle,
+        onLegendStateChanged: onLegendStateChanged);
   }
 
   /// Create a legend with custom layout.
@@ -220,6 +229,7 @@ class SeriesLegend<D> extends ChartBehavior<D> {
     common.MeasureFormatter? measureFormatter,
     common.MeasureFormatter? secondaryMeasureFormatter,
     common.TextStyleSpec? entryTextStyle,
+    LegendSeriesFunction? onLegendStateChanged,
   }) {
     // Set defaults if empty.
     position ??= defaultBehaviorPosition;
@@ -239,6 +249,7 @@ class SeriesLegend<D> extends ChartBehavior<D> {
       measureFormatter: measureFormatter,
       secondaryMeasureFormatter: secondaryMeasureFormatter,
       entryTextStyle: entryTextStyle,
+      onLegendStateChanged: onLegendStateChanged,
     );
   }
 
@@ -254,6 +265,7 @@ class SeriesLegend<D> extends ChartBehavior<D> {
     this.measureFormatter,
     this.secondaryMeasureFormatter,
     this.entryTextStyle,
+    this.onLegendStateChanged,
   });
 
   @override
@@ -379,5 +391,11 @@ class _FlutterSeriesLegend<D> extends common.SeriesLegend<D>
 
     // Redraw the chart to actually hide hidden series.
     chart.redraw(skipLayout: true, skipAnimation: false);
+
+    if (config.onLegendStateChanged != null) {
+      Timer.run(() {
+        config.onLegendStateChanged!(seriesId, this);
+      });
+    }
   }
 }
