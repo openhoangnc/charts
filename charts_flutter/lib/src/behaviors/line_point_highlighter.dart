@@ -74,7 +74,7 @@ class LinePointHighlighter<D> extends ChartBehavior<D> {
   final common.SymbolRenderer? symbolRenderer;
 
   /// Renderer used to draw the highlighted points.
-  final common.TooltipPainter? tooltipPainter;
+  final common.TooltipPainter<D>? tooltipPainter;
 
   LinePointHighlighter(
       {this.selectionModelType,
@@ -88,8 +88,7 @@ class LinePointHighlighter<D> extends ChartBehavior<D> {
       this.tooltipPainter});
 
   @override
-  common.LinePointHighlighter<D> createCommonBehavior() =>
-      new common.LinePointHighlighter<D>(
+  common.LinePointHighlighter<D> createCommonBehavior() => new common.LinePointHighlighter<D>(
         selectionModelType: selectionModelType,
         defaultRadiusPx: defaultRadiusPx,
         radiusPaddingPx: radiusPaddingPx,
