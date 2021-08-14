@@ -41,8 +41,8 @@ import '../selection_model/selection_model.dart'
     show SelectionModel, SelectionModelType;
 import 'chart_behavior.dart' show ChartBehavior;
 
-typedef TooltipPainter = void Function(
-    ChartCanvas canvas, Rectangle<num> bounds);
+typedef TooltipPainter<D> = void Function(
+    ChartCanvas canvas, Rectangle<num> bounds, SelectionModel<D> model);
 
 /// Chart behavior that monitors the specified [SelectionModel] and renders a
 /// dot for selected data.
@@ -99,7 +99,7 @@ class LinePointHighlighter<D> implements ChartBehavior<D> {
   /// Renderer used to draw the highlighted points.
   final SymbolRenderer symbolRenderer;
 
-  final TooltipPainter? tooltipPainter;
+  final TooltipPainter<D>? tooltipPainter;
 
   late BaseChart<D> _chart;
 
@@ -305,7 +305,7 @@ class _LinePointLayoutView<D> extends LayoutView {
 
   final SymbolRenderer symbolRenderer;
 
-  final TooltipPainter? tooltipPainter;
+  final TooltipPainter<D>? tooltipPainter;
 
   @override
   GraphicsFactory? graphicsFactory;
@@ -525,7 +525,8 @@ class _LinePointLayoutView<D> extends LayoutView {
           strokeWidthPx: pointElement.strokeWidthPx);
 
       if (pointElement == points.last) {
-        tooltipPainter?.call(canvas, bounds);
+        tooltipPainter?.call(
+            canvas, bounds, chart.getSelectionModel(SelectionModelType.info));
       }
     }
   }
